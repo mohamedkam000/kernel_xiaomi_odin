@@ -119,6 +119,7 @@ struct xiaomi_touch {
 	struct mutex  mutex;
 	struct mutex  palm_mutex;
 	struct mutex  prox_mutex;
+	struct mutex fod_press_status_mutex;
 	wait_queue_head_t 	wait_queue;
 };
 
@@ -149,6 +150,7 @@ struct xiaomi_touch_pdata{
 	bool set_update;
 	bool bump_sample_rate;
 	const char *name;
+	int fod_press_status_value;
 };
 
 struct xiaomi_touch *xiaomi_touch_dev_get(int minor);
@@ -168,6 +170,8 @@ extern int copy_touch_rawdata(char *raw_base,  int len);
 extern int update_touch_rawdata(void);
 
 extern int update_clicktouch_raw(void);
+
+extern int update_fod_press_status(int value);
 
 int xiaomi_touch_set_suspend_state(int state);
 
