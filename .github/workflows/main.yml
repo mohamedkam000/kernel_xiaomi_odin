@@ -1,0 +1,116 @@
+name: Build Kernel
+
+on:
+  workflow_dispatch:
+
+env:
+  DEFCONFIG: odin_defconfig
+  ARCH: arm64
+  ODIR: out
+  ANYKERNEL_REPO: https://github.com/osm0sis/AnyKernel3.git
+  ANYKERNEL_DIR: anykernel3
+  ZIP_NAME: odin_kernel.zip
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout kernel source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install build dependencies and LLVM 19
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential bc bison ccache flex libncurses5-dev \
+            libssl-dev libelf-dev wget curl zip unzip python3 python3-pip \
+            gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
+            device-tree-compiler
+          curl -sSL https://apt.llvm.org/llvm.sh | sudo bash -s 19
+          sudo apt-get update
+          sudo apt-get install -y clang-19 lld-19 llvm-19
+
+      - name: Set environment for build
+        run: |
+          echo "PATH=/usr/lib/llvm-19/bin:$PATH" >> $GITHUB_ENV
+          echo "CLANG_BIN=/usr/lib/llvm-19/bin" >> $GITHUB_ENV
+          echo "CC=clang-19" >> $GITHUB_ENV
+          echo "LD=ld.lld-19" >> $GITHUB_ENV
+          echo "CLANG_TRIPLE=aarch64-linux-gnu-" >> $GITHUB_ENV
+          echo "CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
+          echo "ARCH=arm64" >> $GITHUB_ENV
+          echo "ODIR=$ODIR" >> $GITHUB_ENV
+
+      - name: Prepare ccache and env
+        run: |
+          export PATH=/usr/lib/llvm-19/bin:$PATH
+          # Ensure ccache available
+          which ccache || sudo apt-get install -y ccache
+          mkdir -p $HOME/.ccache
+          echo "Using /usr/lib/llvm-19/bin in PATH"
+
+      - name: Kernel: clean and defconfig
+        run: |
+          set -euo pipefail
+          export PATH=/usr/lib/llvm-19/bin:$PATH
+          export ARCH=arm64
+          export O=$ODIR
+          export CC=clang-19
+          export CLANG_TRIPLE=aarch64-linux-gnu-
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          export LD=ld.lld-19
+          export LLVM=1
+          export KBUILD_BUILD_USER=github
+          export KBUILD_BUILD_HOST=actions
+          # Clean only the output dir to keep workspace small
+          rm -rf $ODIR
+          make ARCH=$ARCH O=$ODIR $DEFCONFIG
+
+      - name: Kernel: build Image
+        run: |
+          set -euo pipefail
+          export PATH=/usr/lib/llvm-19/bin:$PATH
+          export ARCH=arm64
+          export O=$ODIR
+          export CC=clang-19
+          export CLANG_TRIPLE=aarch64-linux-gnu-
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          export LD=ld.lld-19
+          export LLVM=1
+          make -j$(nproc) ARCH=$ARCH O=$ODIR Image
+          echo "Built files in $ODIR/arch/arm64/boot:"
+          ls -la $ODIR/arch/arm64/boot || true
+
+      - name: Clone AnyKernel3
+        run: |
+          git clone --depth=1 $ANYKERNEL_REPO $ANYKERNEL_DIR
+          echo "AnyKernel3 cloned into $ANYKERNEL_DIR"
+          ls -la $ANYKERNEL_DIR
+
+      - name: Replace kernel inside AnyKernel3
+        run: |
+          AK_KERNEL_PATH=$ANYKERNEL_DIR/kernel
+          AK_BOOT_PATH=$ANYKERNEL_DIR/arch_boot # (optional path if present)
+          mkdir -p $ANYKERNEL_DIR
+          cp $ODIR/arch/arm64/boot/Image $AK_KERNEL_PATH
+          ls -la $ANYKERNEL_DIR
+
+      - name: Create flashable AnyKernel3 zip
+        run: |
+          cd $ANYKERNEL_DIR
+          rm -rf .git || true
+          zip -r "../$ZIP_NAME" . -x "*.git*" || true
+          cd ..
+          ls -la $ZIP_NAME
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mix4-kernel-and-anykernel
+          path: |
+            $ODIR/arch/arm64/boot/Image
+            $ZIP_NAME
