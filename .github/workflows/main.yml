@@ -14,7 +14,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    timeout-minutes: 30
+    timeout-minutes: 20
 
     steps:
       - name: Checkout kernel source
@@ -30,16 +30,16 @@ jobs:
             libssl-dev libelf-dev wget curl zip unzip python3 python3-pip \
             gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
             device-tree-compiler
-          curl -sSL https://apt.llvm.org/llvm.sh | sudo bash -s 19
+          curl -sSL https://apt.llvm.org/llvm.sh | sudo bash -s 21
           sudo apt-get update
-          sudo apt-get install -y clang-19 lld-19 llvm-19
+          sudo apt-get install -y clang-21 lld-21 llvm-21
 
       - name: Set environment for build
         run: |
-          echo "PATH=/usr/lib/llvm-19/bin:$PATH" >> $GITHUB_ENV
-          echo "CLANG_BIN=/usr/lib/llvm-19/bin" >> $GITHUB_ENV
-          echo "CC=clang-19" >> $GITHUB_ENV
-          echo "LD=ld.lld-19" >> $GITHUB_ENV
+          echo "PATH=/usr/lib/llvm-21/bin:$PATH" >> $GITHUB_ENV
+          echo "CLANG_BIN=/usr/lib/llvm-21/bin" >> $GITHUB_ENV
+          echo "CC=clang-21" >> $GITHUB_ENV
+          echo "LD=ld.lld-21" >> $GITHUB_ENV
           echo "CLANG_TRIPLE=aarch64-linux-gnu-" >> $GITHUB_ENV
           echo "CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
           echo "ARCH=arm64" >> $GITHUB_ENV
@@ -47,22 +47,27 @@ jobs:
 
       - name: Prepare ccache and env
         run: |
-          export PATH=/usr/lib/llvm-19/bin:$PATH
+          export PATH=/usr/lib/llvm-21/bin:$PATH
           # Ensure ccache available
           which ccache || sudo apt-get install -y ccache
           mkdir -p $HOME/.ccache
-          echo "Using /usr/lib/llvm-19/bin in PATH"
+          echo "Using /usr/lib/llvm-21/bin in PATH"
+
+      - name: Implement KernelSU Next
+        run: |
+          cd $GITHUB_WORKSPACE
+          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -
 
       - name: Clean and defconfig
         run: |
           set -euo pipefail
-          export PATH=/usr/lib/llvm-19/bin:$PATH
+          export PATH=/usr/lib/llvm-21/bin:$PATH
           export ARCH=arm64
           export O=$ODIR
-          export CC=clang-19
+          export CC=clang-21
           export CLANG_TRIPLE=aarch64-linux-gnu-
           export CROSS_COMPILE=aarch64-linux-gnu-
-          export LD=ld.lld-19
+          export LD=ld.lld-21
           export LLVM=1
           export KBUILD_BUILD_USER=github
           export KBUILD_BUILD_HOST=actions
@@ -73,13 +78,13 @@ jobs:
       - name: Build Image
         run: |
           set -euo pipefail
-          export PATH=/usr/lib/llvm-19/bin:$PATH
+          export PATH=/usr/lib/llvm-21/bin:$PATH
           export ARCH=arm64
           export O=$ODIR
-          export CC=clang-19
+          export CC=clang-21
           export CLANG_TRIPLE=aarch64-linux-gnu-
           export CROSS_COMPILE=aarch64-linux-gnu-
-          export LD=ld.lld-19
+          export LD=ld.lld-21
           export LLVM=1
           make -j$(nproc) ARCH=$ARCH O=$ODIR Image
           echo "Built files in $ODIR/arch/arm64/boot:"
