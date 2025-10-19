@@ -53,7 +53,7 @@ jobs:
           mkdir -p $HOME/.ccache
           echo "Using /usr/lib/llvm-19/bin in PATH"
 
-      - name: Kernel: clean and defconfig
+      - name: Clean and defconfig
         run: |
           set -euo pipefail
           export PATH=/usr/lib/llvm-19/bin:$PATH
