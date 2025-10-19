@@ -70,7 +70,7 @@ jobs:
           rm -rf $ODIR
           make ARCH=$ARCH O=$ODIR $DEFCONFIG
 
-      - name: Kernel: build Image
+      - name: Build Image
         run: |
           set -euo pipefail
           export PATH=/usr/lib/llvm-19/bin:$PATH
@@ -110,7 +110,6 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: mix4-kernel-and-anykernel
+          name: zip
           path: |
-            $ODIR/arch/arm64/boot/Image
             $ZIP_NAME
