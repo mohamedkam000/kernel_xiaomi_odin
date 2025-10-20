@@ -737,6 +737,10 @@ KBUILD_CPPFLAGS += $(KCPPFLAGS)
 KBUILD_AFLAGS   += $(KAFLAGS)
 KBUILD_CFLAGS   += $(KCFLAGS)
 
+# Disable those fucking annoying errors
+KBUILD_CFLAGS += -Wno-error
+KBUILD_CPPFLAGS += -Wno-error
+
 KBUILD_LDFLAGS_MODULE += --build-id
 LDFLAGS_vmlinux += --build-id
 
