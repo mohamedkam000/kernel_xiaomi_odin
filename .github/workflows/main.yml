@@ -13,14 +13,13 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
-      - name: Checkout kernel source
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
+      - name: Clone kernel source
+        run:
+          git clone --depth=1 https://github.com/mohamedkam000/kernel_xiaomi_odin.git kernel
 
       - name: Install build dependencies and LLVM 19
         run: |
@@ -53,6 +52,7 @@ jobs:
 #          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -
 
       - name: Clean and defconfig
+        working-directory: kernel
         run: |
           set -euo pipefail
           export PATH=/usr/lib/llvm-19/bin:$PATH
@@ -69,6 +69,7 @@ jobs:
           make ARCH=$ARCH O=$ODIR $DEFCONFIG
 
       - name: Build Image
+        working-directory: kernel
         run: |
           set -euo pipefail
           export PATH=/usr/lib/llvm-19/bin:$PATH
