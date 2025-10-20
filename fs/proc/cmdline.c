@@ -74,7 +74,7 @@ static int process_flag(int replace, const char *flag, const char *new_var)
 	return ret;
 }
 
-void apply_random(void)
+char *apply_random(void)
 {
 	u32 rnd;
 	char rand_str[11];
