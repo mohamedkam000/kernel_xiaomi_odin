@@ -26,59 +26,58 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            build-essential bc bison flex libncurses5-dev \
-            libssl-dev libelf-dev \
+            libncurses5-dev \
+            libelf-dev \
             gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-          curl -sSL https://apt.llvm.org/llvm.sh | sudo bash -s 21
+          curl -sSL https://apt.llvm.org/llvm.sh | sudo bash -s 19
           sudo apt-get update
-          sudo apt-get install -y clang-21 lld-21 llvm-21
+          sudo apt-get install -y clang-19 lld-19 llvm-19
           sudo apt-get clean
           sudo rm -rf /var/lib/apt/lists/*
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/share/swift
 
       - name: Set environment for build
         run: |
-          echo "PATH=/usr/lib/llvm-21/bin:$PATH" >> $GITHUB_ENV
-          echo "CLANG_BIN=/usr/lib/llvm-21/bin" >> $GITHUB_ENV
-          echo "CC=clang-21" >> $GITHUB_ENV
-          echo "LD=ld.lld-21" >> $GITHUB_ENV
+          echo "PATH=/usr/lib/llvm-19/bin:$PATH" >> $GITHUB_ENV
+          echo "CLANG_BIN=/usr/lib/llvm-19/bin" >> $GITHUB_ENV
+          echo "CC=clang-19" >> $GITHUB_ENV
+          echo "LD=ld.lld-19" >> $GITHUB_ENV
           echo "CLANG_TRIPLE=aarch64-linux-gnu-" >> $GITHUB_ENV
           echo "CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
           echo "ARCH=arm64" >> $GITHUB_ENV
           echo "ODIR=$ODIR" >> $GITHUB_ENV
 
-      - name: Implement KernelSU Next
-        run: |
-          cd $GITHUB_WORKSPACE
-          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -
+#      - name: Implement KernelSU Next
+#        run: |
+#          cd $GITHUB_WORKSPACE
+#          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -
 
       - name: Clean and defconfig
         run: |
           set -euo pipefail
-          export PATH=/usr/lib/llvm-21/bin:$PATH
+          export PATH=/usr/lib/llvm-19/bin:$PATH
           export ARCH=arm64
           export O=$ODIR
-          export CC=clang-21
+          export CC=clang-19
           export CLANG_TRIPLE=aarch64-linux-gnu-
           export CROSS_COMPILE=aarch64-linux-gnu-
-          export LD=ld.lld-21
+          export LD=ld.lld-19
           export LLVM=1
           export KBUILD_BUILD_USER=github
           export KBUILD_BUILD_HOST=actions
-          # Clean only the output dir to keep workspace small
           rm -rf $ODIR
           make ARCH=$ARCH O=$ODIR $DEFCONFIG
 
       - name: Build Image
         run: |
           set -euo pipefail
-          export PATH=/usr/lib/llvm-21/bin:$PATH
+          export PATH=/usr/lib/llvm-19/bin:$PATH
           export ARCH=arm64
           export O=$ODIR
-          export CC=clang-21
+          export CC=clang-19
           export CLANG_TRIPLE=aarch64-linux-gnu-
           export CROSS_COMPILE=aarch64-linux-gnu-
-          export LD=ld.lld-21
+          export LD=ld.lld-19
           export LLVM=1
           make -j$(nproc) ARCH=$ARCH O=$ODIR Image
           echo "Built files in $ODIR/arch/arm64/boot:"
