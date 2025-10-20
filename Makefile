@@ -448,7 +448,7 @@ endif
 
 ifeq ($(KBUILD_EXTMOD),)
 init-y		:= init/
-drivers-y	:= drivers/ sound/ techpack/
+drivers-y	:= drivers/ sound/ #techpack/
 drivers-$(CONFIG_SAMPLES) += samples/
 net-y		:= net/
 libs-y		:= lib/
