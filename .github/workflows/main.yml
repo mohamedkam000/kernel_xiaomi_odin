@@ -35,16 +35,16 @@ jobs:
           sudo rm -rf /var/lib/apt/lists/*
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/share/swift
 
-      - name: Set environment for build
-        run: |
-          echo "PATH=/usr/lib/llvm-19/bin:$PATH" >> $GITHUB_ENV
-          echo "CLANG_BIN=/usr/lib/llvm-19/bin" >> $GITHUB_ENV
-          echo "CC=clang-19" >> $GITHUB_ENV
-          echo "LD=ld.lld-19" >> $GITHUB_ENV
-          echo "CLANG_TRIPLE=aarch64-linux-gnu-" >> $GITHUB_ENV
-          echo "CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
-          echo "ARCH=arm64" >> $GITHUB_ENV
-          echo "ODIR=$ODIR" >> $GITHUB_ENV
+#      - name: Set environment for build
+#        run: |
+#          echo "PATH=/usr/lib/llvm-19/bin:$PATH" >> $GITHUB_ENV
+#          echo "CLANG_BIN=/usr/lib/llvm-19/bin" >> $GITHUB_ENV
+#          echo "CC=clang-19" >> $GITHUB_ENV
+#          echo "LD=ld.lld-19" >> $GITHUB_ENV
+#          echo "CLANG_TRIPLE=aarch64-linux-gnu-" >> $GITHUB_ENV
+#          echo "CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
+#          echo "ARCH=arm64" >> $GITHUB_ENV
+#          echo "ODIR=$ODIR" >> $GITHUB_ENV
 
 #      - name: Implement KernelSU Next
 #        run: |
@@ -85,12 +85,14 @@ jobs:
           ls -la $ODIR/arch/arm64/boot || true
 
       - name: Clone AnyKernel3
+        working-directory: kernel
         run: |
           git clone --depth=1 $ANYKERNEL_REPO $ANYKERNEL_DIR
           echo "AnyKernel3 cloned into $ANYKERNEL_DIR"
           ls -la $ANYKERNEL_DIR
 
       - name: Replace kernel inside AnyKernel3
+        working-directory: kernel
         run: |
           AK_KERNEL_PATH=$ANYKERNEL_DIR/kernel
           AK_BOOT_PATH=$ANYKERNEL_DIR/arch_boot # (optional path if present)
@@ -99,6 +101,7 @@ jobs:
           ls -la $ANYKERNEL_DIR
 
       - name: Create flashable AnyKernel3 zip
+        working-directory: kernel
         run: |
           cd $ANYKERNEL_DIR
           rm -rf .git || true
@@ -107,6 +110,7 @@ jobs:
           ls -la $ZIP_NAME
 
       - name: Upload artifacts
+        working-directory: kernel
         uses: actions/upload-artifact@v4
         with:
           name: zip
