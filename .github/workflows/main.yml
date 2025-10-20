@@ -21,14 +21,14 @@ jobs:
         run:
           git clone --depth=1 https://github.com/mohamedkam000/kernel_xiaomi_odin.git kernel
 
-      - name: Install build dependencies and LLVM 19
+      - name: Install build dependencies and LLVM 14
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             libelf-dev \
             gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
           sudo apt-get update
-          sudo apt-get install -y clang-19 lld-19 llvm-19
+          sudo apt-get install -y clang-14 lld-14 llvm-14
           sudo apt-get clean
           sudo rm -rf /var/lib/apt/lists/*
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/share/swift
@@ -39,10 +39,10 @@ jobs:
           set -euo pipefail
           export PATH=/usr/lib/llvm-19/bin:$PATH
           export ARCH=arm64
-          export CC=clang-19
+          export CC=clang-14
           export CLANG_TRIPLE=aarch64-linux-gnu-
           export CROSS_COMPILE=aarch64-linux-gnu-
-          export LD=ld.lld-19
+          export LD=ld.lld-14
           export LLVM=1
           make $DEFCONFIG
           make -j$(nproc)
