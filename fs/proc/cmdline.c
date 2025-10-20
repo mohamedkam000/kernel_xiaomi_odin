@@ -11,6 +11,7 @@ enum {
 	FLAG_REPLACE,
 };
 
+#define COMMAND_LINE_SIZE 4096
 static char new_command_line[COMMAND_LINE_SIZE];
 
 static int cmdline_proc_show(struct seq_file *m, void *v)
@@ -80,10 +81,12 @@ void apply_random(void)
 
 	get_random_bytes(&rnd, sizeof (rnd));
 	snprintf(rand_str, sizeof(rand_str), "%08x", rnd);
+	return rand_str;
 }
 
 static int __init proc_cmdline_init(void)
 {
+	apply_random();
 	memcpy(new_command_line, saved_command_line,
 		min((size_t)COMMAND_LINE_SIZE, strlen(saved_command_line)));
 
