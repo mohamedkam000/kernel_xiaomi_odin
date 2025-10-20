@@ -1,17 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0
-/*
- * Implement the AER root port service driver. The driver registers an IRQ
- * handler. When a root port triggers an AER interrupt, the IRQ handler
- * collects root port status and schedules work.
- *
- * Copyright (C) 2006 Intel Corp.
- *	Tom Long Nguyen (tom.l.nguyen@intel.com)
- *	Zhang Yanmin (yanmin.zhang@intel.com)
- *
- * (C) Copyright 2009 Hewlett-Packard Development Company, L.P.
- *    Andrew Patterson <andrew.patterson@hp.com>
- */
-
 #define pr_fmt(fmt) "AER: " fmt
 #define dev_fmt pr_fmt
 
@@ -48,19 +34,7 @@ struct aer_rpc {
 	DECLARE_KFIFO(aer_fifo, struct aer_err_source, AER_ERROR_SOURCES_MAX);
 };
 
-/* AER stats for the device */
 struct aer_stats {
-
-	/*
-	 * Fields for all AER capable devices. They indicate the errors
-	 * "as seen by this device". Note that this may mean that if an
-	 * end point is causing problems, the AER counters may increment
-	 * at its link partner (e.g. root port) because the errors will be
-	 * "seen" by the link partner and not the the problematic end point
-	 * itself (which may report all counters as 0 as it never saw any
-	 * problems).
-	 */
-	/* Counters for different type of correctable errors */
 	u64 dev_cor_errs[AER_MAX_TYPEOF_COR_ERRS];
 	/* Counters for different type of fatal uncorrectable errors */
 	u64 dev_fatal_errs[AER_MAX_TYPEOF_UNCOR_ERRS];
@@ -72,13 +46,6 @@ struct aer_stats {
 	u64 dev_total_fatal_errs;
 	/* Total number of ERR_NONFATAL sent by this device */
 	u64 dev_total_nonfatal_errs;
-
-	/*
-	 * Fields for Root ports & root complex event collectors only, these
-	 * indicate the total number of ERR_COR, ERR_FATAL, and ERR_NONFATAL
-	 * messages received by the root port / event collector, INCLUDING the
-	 * ones that are generated internally (by the rootport itself)
-	 */
 	u64 rootport_total_cor_errs;
 	u64 rootport_total_fatal_errs;
 	u64 rootport_total_nonfatal_errs;
@@ -126,12 +93,6 @@ static const char * const ecrc_policy_str[] = {
 	[ECRC_POLICY_ON] = "on"
 };
 
-/**
- * enable_ercr_checking - enable PCIe ECRC checking for a device
- * @dev: the PCI device
- *
- * Returns 0 on success, or negative on failure.
- */
 static int enable_ecrc_checking(struct pci_dev *dev)
 {
 	int pos;
@@ -154,12 +115,6 @@ static int enable_ecrc_checking(struct pci_dev *dev)
 	return 0;
 }
 
-/**
- * disable_ercr_checking - disables PCIe ECRC checking for a device
- * @dev: the PCI device
- *
- * Returns 0 on success, or negative on failure.
- */
 static int disable_ecrc_checking(struct pci_dev *dev)
 {
 	int pos;
@@ -179,10 +134,6 @@ static int disable_ecrc_checking(struct pci_dev *dev)
 	return 0;
 }
 
-/**
- * pcie_set_ecrc_checking - set/unset PCIe ECRC checking for a device based on global policy
- * @dev: the PCI device
- */
 void pcie_set_ecrc_checking(struct pci_dev *dev)
 {
 	switch (ecrc_policy) {
@@ -266,10 +217,6 @@ static int aer_hest_parse(struct acpi_hest_header *hest_hdr, void *data)
 	p = (struct acpi_hest_aer_common *)(hest_hdr + 1);
 	ff = !!(p->flags & ACPI_HEST_FIRMWARE_FIRST);
 
-	/*
-	 * If no specific device is supplied, determine whether
-	 * FIRMWARE_FIRST is set for *any* PCIe device.
-	 */
 	if (!info->pci_dev) {
 		info->firmware_first |= ff;
 		return 0;
@@ -773,8 +720,8 @@ out:
 	if (info->id && info->error_dev_num > 1 && info->id == id)
 		pci_err(dev, "  Error of this Agent is reported first\n");
 
-	trace_aer_event(dev_name(&dev->dev), (info->status & ~info->mask),
-			info->severity, info->tlp_header_valid, &info->tlp);
+//	trace_aer_event(dev_name(&dev->dev), (info->status & ~info->mask),
+//			info->severity, info->tlp_header_valid, &info->tlp);
 }
 
 static void aer_print_port_info(struct pci_dev *dev, struct aer_err_info *info)
@@ -840,8 +787,8 @@ void cper_print_aer(struct pci_dev *dev, int aer_severity,
 	if (tlp_header_valid)
 		__print_tlp_header(dev, &aer->header_log);
 
-	trace_aer_event(dev_name(&dev->dev), (status & ~mask),
-			aer_severity, tlp_header_valid, &aer->header_log);
+//	trace_aer_event(dev_name(&dev->dev), (status & ~mask),
+//			aer_severity, tlp_header_valid, &aer->header_log);
 }
 #endif
 
