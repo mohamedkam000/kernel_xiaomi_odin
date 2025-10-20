@@ -250,9 +250,9 @@ bool msm_ion_heap_is_secure(int heap_id)
 {
 	struct ion_heap *heap = ion_heap_by_id(heap_id);
 
-	if (IS_ERR(heap) || !(heap->type == ION_HEAP_TYPE_SECURE_CARVEOUT ||
-			      heap->type == ION_HEAP_TYPE_SYSTEM_SECURE ||
-			      heap->type == ION_HEAP_TYPE_HYP_CMA))
+	if (IS_ERR(heap) || !((int)heap->type == (int)ION_HEAP_TYPE_SECURE_CARVEOUT ||
+			      (int)heap->type == (int)ION_HEAP_TYPE_SYSTEM_SECURE ||
+			      (int)heap->type == (int)ION_HEAP_TYPE_HYP_CMA))
 		return false;
 
 	return true;
