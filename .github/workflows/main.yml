@@ -51,22 +51,22 @@ jobs:
 #          cd $GITHUB_WORKSPACE
 #          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -
 
-      - name: Clean and defconfig
-        working-directory: kernel
-        run: |
-          set -euo pipefail
-          export PATH=/usr/lib/llvm-19/bin:$PATH
-          export ARCH=arm64
-          export O=$ODIR
-          export CC=clang-19
-          export CLANG_TRIPLE=aarch64-linux-gnu-
-          export CROSS_COMPILE=aarch64-linux-gnu-
-          export LD=ld.lld-19
-          export LLVM=1
-          export KBUILD_BUILD_USER=github
-          export KBUILD_BUILD_HOST=actions
-          rm -rf $ODIR
-          make ARCH=$ARCH O=$ODIR $DEFCONFIG
+#      - name: Clean and defconfig
+#        working-directory: kernel
+#        run: |
+#          set -euo pipefail
+#          export PATH=/usr/lib/llvm-19/bin:$PATH
+#          export ARCH=arm64
+#          export O=$ODIR
+#          export CC=clang-19
+#          export CLANG_TRIPLE=aarch64-linux-gnu-
+#          export CROSS_COMPILE=aarch64-linux-gnu-
+#          export LD=ld.lld-19
+#          export LLVM=1
+#          export KBUILD_BUILD_USER=github
+#          export KBUILD_BUILD_HOST=actions
+#          rm -rf $ODIR
+#          make ARCH=$ARCH O=$ODIR $DEFCONFIG
 
       - name: Build Image
         working-directory: kernel
@@ -80,8 +80,9 @@ jobs:
           export CROSS_COMPILE=aarch64-linux-gnu-
           export LD=ld.lld-19
           export LLVM=1
-          make -j$(nproc) ARCH=$ARCH O=$ODIR Image
-          echo "Built files in $ODIR/arch/arm64/boot:"
+          make $DEFCONFIG
+          make -j$(nproc)
+#          echo "Built files in $ODIR/arch/arm64/boot:"
           ls -la $ODIR/arch/arm64/boot || true
 
       - name: Clone AnyKernel3
@@ -96,7 +97,7 @@ jobs:
 #          AK_KERNEL_PATH=$ANYKERNEL_DIR/kernel
 #          AK_BOOT_PATH=$ANYKERNEL_DIR/arch_boot
 #          mkdir -p $ANYKERNEL_DIR
-          cp $ODIR/arch/arm64/boot/Image $ANYKERNEL_DIR
+          cp arch/arm64/boot/Image $ANYKERNEL_DIR
 #          ls -la $ANYKERNEL_DIR
 
       - name: Create flashable AnyKernel3 zip
