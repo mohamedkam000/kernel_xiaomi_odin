@@ -1,24 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-only
-/*
- * INET		An implementation of the TCP/IP protocol suite for the LINUX
- *		operating system.  INET is implemented using the  BSD Socket
- *		interface as the means of communication with the user level.
- *
- *		Implementation of the Transmission Control Protocol(TCP).
- *
- * Authors:	Ross Biro
- *		Fred N. van Kempen, <waltje@uWalt.NL.Mugnet.ORG>
- *		Mark Evans, <evansmp@uhura.aston.ac.uk>
- *		Corey Minyard <wf-rch!minyard@relay.EU.net>
- *		Florian La Roche, <flla@stud.uni-sb.de>
- *		Charles Hedrick, <hedrick@klinzhai.rutgers.edu>
- *		Linus Torvalds, <torvalds@cs.helsinki.fi>
- *		Alan Cox, <gw4pts@gw4pts.ampr.org>
- *		Matthew Dillon, <dillon@apollo.west.oic.com>
- *		Arnt Gulbrandsen, <agulbra@nvg.unit.no>
- *		Jorge Cwik, <jorge@laser.satlink.net>
- */
-
 #include <linux/module.h>
 #include <linux/gfp.h>
 #include <net/tcp.h>
@@ -107,30 +86,6 @@ static void tcp_write_err(struct sock *sk)
 	__NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPABORTONTIMEOUT);
 }
 
-/**
- *  tcp_out_of_resources() - Close socket if out of resources
- *  @sk:        pointer to current socket
- *  @do_reset:  send a last packet with reset flag
- *
- *  Do not allow orphaned sockets to eat all our resources.
- *  This is direct violation of TCP specs, but it is required
- *  to prevent DoS attacks. It is called when a retransmission timeout
- *  or zero probe timeout occurs on orphaned socket.
- *
- *  Also close if our net namespace is exiting; in that case there is no
- *  hope of ever communicating again since all netns interfaces are already
- *  down (or about to be down), and we need to release our dst references,
- *  which have been moved to the netns loopback interface, so the namespace
- *  can finish exiting.  This condition is only possible if we are a kernel
- *  socket, as those do not hold references to the namespace.
- *
- *  Criteria is still not confirmed experimentally and may change.
- *  We kill the socket, if:
- *  1. If number of orphaned sockets exceeds an administratively configured
- *     limit.
- *  2. If we have strong memory pressure.
- *  3. If our net namespace is exiting.
- */
 static int tcp_out_of_resources(struct sock *sk, bool do_reset)
 {
 	struct tcp_sock *tp = tcp_sk(sk);
@@ -199,7 +154,7 @@ static void tcp_mtu_probing(struct inet_connection_sock *icsk, struct sock *sk)
 		return;
 
 	if (!icsk->icsk_mtup.enabled) {
-		icsk->icsk_mtup.enabled = 1;
+		icsk->icsk_mtup.enabled = !!1;
 		icsk->icsk_mtup.probe_timestamp = tcp_jiffies32;
 	} else {
 		mss = tcp_mtu_to_mss(sk, icsk->icsk_mtup.search_low) >> 1;
@@ -225,19 +180,7 @@ static unsigned int tcp_model_timeout(struct sock *sk,
 			(boundary - linear_backoff_thresh) * TCP_RTO_MAX;
 	return jiffies_to_msecs(timeout);
 }
-/**
- *  retransmits_timed_out() - returns true if this connection has timed out
- *  @sk:       The current socket
- *  @boundary: max number of retransmissions
- *  @timeout:  A custom timeout value.
- *             If set to 0 the default timeout is calculated and used.
- *             Using TCP_RTO_MIN and the number of unsuccessful retransmits.
- *
- * The default "timeout" value this function can calculate and use
- * is equivalent to the timeout of a TCP Connection
- * after "boundary" unsuccessful, exponentially backed-off
- * retransmissions with an initial RTO of TCP_RTO_MIN.
- */
+
 static bool retransmits_timed_out(struct sock *sk,
 				  unsigned int boundary,
 				  unsigned int timeout)
