@@ -74,18 +74,18 @@ static int process_flag(int replace, const char *flag, const char *new_var)
 	return ret;
 }
 
-char *apply_random(void)
+void apply_random(char *buf, size_t len)
 {
-	u32 rnd;
-	char rand_str[11];
+    u32 rnd;
 
-	get_random_bytes(&rnd, sizeof (rnd));
-	snprintf(rand_str, sizeof(rand_str), "%08x", rnd);
-	return rand_str;
+    get_random_bytes(&rnd, sizeof(rnd));
+    snprintf(buf, len, "%08x", rnd);
 }
 
 static int __init proc_cmdline_init(void)
 {
+	char rand_str[11];
+    apply_random(rand_str, sizeof(rand_str));
 	memcpy(new_command_line, saved_command_line,
 		min((size_t)COMMAND_LINE_SIZE, strlen(saved_command_line)));
 
@@ -95,7 +95,7 @@ static int __init proc_cmdline_init(void)
 	process_flag(FLAG_REPLACE, "androidboot.veritymode=", "enforcing");
 	process_flag(FLAG_REPLACE, "androidboot.vbmeta.device_state=", "locked");
 	process_flag(FLAG_REPLACE, "androidboot.selinux=", "enforcing");
-	process_flag(FLAG_REPLACE, "androidboot.serialno=", apply_random());
+	process_flag(FLAG_REPLACE, "androidboot.serialno=", rand_str);
 	process_flag(FLAG_REPLACE, "androidboot.secureboot=", "1");
 	process_flag(FLAG_REPLACE, "androidboot.ramdump=", "disable");
 	process_flag(FLAG_REPLACE, "androidboot.secureboot=", "1");
