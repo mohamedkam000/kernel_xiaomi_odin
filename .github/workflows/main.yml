@@ -34,70 +34,30 @@ jobs:
           sudo apt-get clean
           sudo rm -rf /var/lib/apt/lists/*
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/share/swift
-#      - name: Set environment for build
-#        run: |
-#          echo "PATH=/usr/lib/llvm-19/bin:$PATH" >> $GITHUB_ENV
-#          echo "CLANG_BIN=/usr/lib/llvm-19/bin" >> $GITHUB_ENV
-#          echo "CC=clang-19" >> $GITHUB_ENV
-#          echo "LD=ld.lld-19" >> $GITHUB_ENV
-#          echo "CLANG_TRIPLE=aarch64-linux-gnu-" >> $GITHUB_ENV
-#          echo "CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
-#          echo "ARCH=arm64" >> $GITHUB_ENV
-#          echo "ODIR=$ODIR" >> $GITHUB_ENV
-
-#      - name: Implement KernelSU Next
-#        run: |
-#          cd $GITHUB_WORKSPACE
-#          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -
-
-#      - name: Clean and defconfig
-#        working-directory: kernel
-#        run: |
-#          set -euo pipefail
-#          export PATH=/usr/lib/llvm-19/bin:$PATH
-#          export ARCH=arm64
-#          export O=$ODIR
-#          export CC=clang-19
-#          export CLANG_TRIPLE=aarch64-linux-gnu-
-#          export CROSS_COMPILE=aarch64-linux-gnu-
-#          export LD=ld.lld-19
-#          export LLVM=1
-#          export KBUILD_BUILD_USER=github
-#          export KBUILD_BUILD_HOST=actions
-#          rm -rf $ODIR
-#          make ARCH=$ARCH O=$ODIR $DEFCONFIG
 
       - name: Build Image
         working-directory: kernel
         run: |
           set -euo pipefail
           export PATH=/usr/lib/llvm-19/bin:$PATH
-          export ARCH=arm64 CC=clang-19
-#          export O=$ODIR
-#          export CC=clang-19
+          export ARCH=arm64
+          export CC=clang-19
           export CLANG_TRIPLE=aarch64-linux-gnu-
           export CROSS_COMPILE=aarch64-linux-gnu-
           export LD=ld.lld-19
           export LLVM=1
           make $DEFCONFIG
           make -j$(nproc)
-#          echo "Built files in $ODIR/arch/arm64/boot:"
-#          ls -la $ODIR/arch/arm64/boot || true
 
       - name: Clone AnyKernel3
         working-directory: kernel
         run: |
           git clone --depth=1 $ANYKERNEL_REPO $ANYKERNEL_DIR
-#          ls -la $ANYKERNEL_DIR
 
       - name: Copy kernel image to AnyKernel3
         working-directory: kernel
         run: |
-#          AK_KERNEL_PATH=$ANYKERNEL_DIR/kernel
-#          AK_BOOT_PATH=$ANYKERNEL_DIR/arch_boot
-#          mkdir -p $ANYKERNEL_DIR
           cp arch/arm64/boot/Image $ANYKERNEL_DIR
-#          ls -la $ANYKERNEL_DIR
 
       - name: Create flashable AnyKernel3 zip
         working-directory: kernel
