@@ -1,15 +1,3 @@
-#
-# arch/arm64/Makefile
-#
-# This file is included by the global makefile so that you can add your own
-# architecture-specific flags and dependencies.
-#
-# This file is subject to the terms and conditions of the GNU General Public
-# License.  See the file "COPYING" in the main directory of this archive
-# for more details.
-#
-# Copyright (C) 1995-2001 by Russell King
-
 LDFLAGS_vmlinux	:=--no-undefined -X
 CPPFLAGS_vmlinux.lds = -DTEXT_OFFSET=$(TEXT_OFFSET)
 GZFLAGS		:=-9
@@ -141,15 +129,15 @@ core-y		+= arch/arm64/
 libs-y		:= arch/arm64/lib/ $(libs-y)
 core-$(CONFIG_EFI_STUB) += $(objtree)/drivers/firmware/efi/libstub/lib.a
 
-ifeq ($(CONFIG_BUILD_ARM64_KERNEL_COMPRESSION_GZIP),y)
-KBUILD_TARGET   := Image.gz
-else
+#ifeq ($(CONFIG_BUILD_ARM64_KERNEL_COMPRESSION_GZIP),y)
+#KBUILD_TARGET   := Image.gz
+#else
 KBUILD_TARGET   := Image
-endif
+#endif
 
-ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
-KBUILD_TARGET   += dtbo.img
-endif
+#ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
+#KBUILD_TARGET   += dtbo.img
+#endif
 
 # Default target when executing plain make
 boot		:= arch/arm64/boot
@@ -163,31 +151,22 @@ Image: vmlinux
 Image.%: Image
 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
 
-zinstall install:
-	$(Q)$(MAKE) $(build)=$(boot) $@
+#ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
+#dtbo.img: dtbs
+#	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
+#endif
 
-ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
-dtbo.img: dtbs
-	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
-endif
-
-PHONY += vdso_install
-vdso_install:
-	$(Q)$(MAKE) $(build)=arch/arm64/kernel/vdso $@
-	$(if $(CONFIG_COMPAT_VDSO), \
-		$(Q)$(MAKE) $(build)=arch/arm64/kernel/vdso32 $@)
+#PHONY += vdso_install
+#vdso_install:
+#	$(Q)$(MAKE) $(build)=arch/arm64/kernel/vdso $@
+#	$(if $(CONFIG_COMPAT_VDSO), \
+#		$(Q)$(MAKE) $(build)=arch/arm64/kernel/vdso32 $@)
 
 # We use MRPROPER_FILES and CLEAN_FILES now
 archclean:
 	$(Q)$(MAKE) $(clean)=$(boot)
 
 ifeq ($(KBUILD_EXTMOD),)
-# We need to generate vdso-offsets.h before compiling certain files in kernel/.
-# In order to do that, we should use the archprepare target, but we can't since
-# asm-offsets.h is included in some files used to generate vdso-offsets.h, and
-# asm-offsets.h is built in prepare0, for which archprepare is a dependency.
-# Therefore we need to generate the header after prepare0 has been made, hence
-# this hack.
 prepare: vdso_prepare
 vdso_prepare: prepare0
 	$(Q)$(MAKE) $(build)=arch/arm64/kernel/vdso include/generated/vdso-offsets.h
@@ -195,13 +174,3 @@ vdso_prepare: prepare0
 		$(build)=arch/arm64/kernel/vdso32  \
 		include/generated/vdso32-offsets.h)
 endif
-
-define archhelp
-  echo  '* Image.gz      - Compressed kernel image (arch/$(ARCH)/boot/Image.gz)'
-  echo  '  Image         - Uncompressed kernel image (arch/$(ARCH)/boot/Image)'
-  echo  '  install       - Install uncompressed kernel'
-  echo  '  zinstall      - Install compressed kernel'
-  echo  '                  Install using (your) ~/bin/installkernel or'
-  echo  '                  (distribution) /sbin/installkernel or'
-  echo  '                  install to $$(INSTALL_PATH) and run lilo'
-endef
