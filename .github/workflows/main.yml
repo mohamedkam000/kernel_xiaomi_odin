@@ -88,17 +88,16 @@ jobs:
         working-directory: kernel
         run: |
           git clone --depth=1 $ANYKERNEL_REPO $ANYKERNEL_DIR
-          echo "AnyKernel3 cloned into $ANYKERNEL_DIR"
-          ls -la $ANYKERNEL_DIR
+#          ls -la $ANYKERNEL_DIR
 
-      - name: Replace kernel inside AnyKernel3
+      - name: Copy kernel image to AnyKernel3
         working-directory: kernel
         run: |
-          AK_KERNEL_PATH=$ANYKERNEL_DIR/kernel
-          AK_BOOT_PATH=$ANYKERNEL_DIR/arch_boot # (optional path if present)
-          mkdir -p $ANYKERNEL_DIR
-          cp $ODIR/arch/arm64/boot/Image $AK_KERNEL_PATH
-          ls -la $ANYKERNEL_DIR
+#          AK_KERNEL_PATH=$ANYKERNEL_DIR/kernel
+#          AK_BOOT_PATH=$ANYKERNEL_DIR/arch_boot
+#          mkdir -p $ANYKERNEL_DIR
+          cp $ODIR/arch/arm64/boot/Image $ANYKERNEL_DIR
+#          ls -la $ANYKERNEL_DIR
 
       - name: Create flashable AnyKernel3 zip
         working-directory: kernel
@@ -110,7 +109,6 @@ jobs:
           ls -la $ZIP_NAME
 
       - name: Upload artifacts
-        working-directory: kernel
         uses: actions/upload-artifact@v4
         with:
           name: zip
