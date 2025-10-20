@@ -136,9 +136,6 @@ static int tcp_orphan_retries(struct sock *sk, bool alive)
 	if (sk->sk_err_soft && !alive)
 		retries = 0;
 
-	/* However, if socket sent something recently, select some safe
-	 * number of retries. 8 corresponds to >100 seconds with minimal
-	 * RTO of 200msec. */
 	if (retries == 0 && alive)
 		retries = 8;
 	return retries;
@@ -154,7 +151,7 @@ static void tcp_mtu_probing(struct inet_connection_sock *icsk, struct sock *sk)
 		return;
 
 	if (!icsk->icsk_mtup.enabled) {
-		icsk->icsk_mtup.enabled = !!1;
+		icsk->icsk_mtup.enabled = (unsigned int)1;
 		icsk->icsk_mtup.probe_timestamp = tcp_jiffies32;
 	} else {
 		mss = tcp_mtu_to_mss(sk, icsk->icsk_mtup.search_low) >> 1;
