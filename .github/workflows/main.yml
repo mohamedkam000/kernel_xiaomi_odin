@@ -32,6 +32,9 @@ jobs:
           curl -sSL https://apt.llvm.org/llvm.sh | sudo bash -s 21
           sudo apt-get update
           sudo apt-get install -y clang-21 lld-21 llvm-21
+          sudo apt-get clean
+          sudo rm -rf /var/lib/apt/lists/*
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/share/swift
 
       - name: Set environment for build
         run: |
