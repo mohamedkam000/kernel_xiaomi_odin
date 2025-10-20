@@ -86,7 +86,6 @@ void apply_random(void)
 
 static int __init proc_cmdline_init(void)
 {
-	apply_random();
 	memcpy(new_command_line, saved_command_line,
 		min((size_t)COMMAND_LINE_SIZE, strlen(saved_command_line)));
 
@@ -96,7 +95,7 @@ static int __init proc_cmdline_init(void)
 	process_flag(FLAG_REPLACE, "androidboot.veritymode=", "enforcing");
 	process_flag(FLAG_REPLACE, "androidboot.vbmeta.device_state=", "locked");
 	process_flag(FLAG_REPLACE, "androidboot.selinux=", "enforcing");
-	process_flag(FLAG_REPLACE, "androidboot.serialno=", rand_str);
+	process_flag(FLAG_REPLACE, "androidboot.serialno=", apply_random());
 	process_flag(FLAG_REPLACE, "androidboot.secureboot=", "1");
 	process_flag(FLAG_REPLACE, "androidboot.ramdump=", "disable");
 	process_flag(FLAG_REPLACE, "androidboot.secureboot=", "1");
