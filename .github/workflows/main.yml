@@ -21,28 +21,31 @@ jobs:
         run:
           git clone --depth=1 https://github.com/mohamedkam000/kernel_xiaomi_odin.git kernel
 
-      - name: Install build dependencies and LLVM 12
+      - name: Install build dependencies and LLVM 19
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             libelf-dev \
-            gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-          sudo apt-get update
-          sudo apt-get install -y clang-12 lld-12 llvm-12
+            gcc-aarch64-linux-gnu g++-aarch64-linux-gnu clang-19 lld-19 llvm-19
           sudo apt-get clean
           sudo rm -rf /var/lib/apt/lists/*
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/share/swift
+
+      - name: Implement KSU Next
+        working-directory: kernel
+        run: |
+          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -
 
       - name: Build Image
         working-directory: kernel
         run: |
           set -euo pipefail
-          export PATH=/usr/lib/llvm-12/bin:$PATH
+          export PATH=/usr/lib/llvm-19/bin:$PATH
           export ARCH=arm64
-          export CC=clang-12
+          export CC=clang-19
           export CLANG_TRIPLE=aarch64-linux-gnu-
           export CROSS_COMPILE=aarch64-linux-gnu-
-          export LD=ld.lld-12
+          export LD=ld.lld-19
           export LLVM=1
           make $DEFCONFIG
           make -j$(nproc)
