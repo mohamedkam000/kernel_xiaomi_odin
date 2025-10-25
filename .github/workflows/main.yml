@@ -21,12 +21,9 @@ jobs:
         run:
           git clone --depth=1 https://github.com/mohamedkam000/kernel_xiaomi_odin.git kernel
 
-      - name: Install build dependencies and LLVM 19
+      - name: Install build dependencies
         run: |
-          sudo apt-get install -y --no-install-recommends gcc-aarch64-linux-gnu
-          sudo apt-get clean
-          sudo rm -rf /var/lib/apt/lists/*
-          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/share/swift
+          sudo apt-get install -y gcc-aarch64-linux-gnu
 
       - name: Implement KSU Next
         working-directory: kernel
@@ -44,7 +41,7 @@ jobs:
           export LD=ld.lld
           export LLVM=1
           make $DEFCONFIG
-          make -j$(nproc)
+          make -j16
 
       - name: Clone AnyKernel3
         working-directory: kernel
