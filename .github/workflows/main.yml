@@ -23,9 +23,7 @@ jobs:
 
       - name: Install build dependencies
         run: |
-          DEBIAN_FRONTEND=noninteractive sudo apt remove -y llvm*
-          DEBIAN_FRONTEND=noninteractive sudo apt autoremove -y
-          DEBIAN_FRONTEND=noninteractive sudo apt-get install -y gcc-aarch64-linux-gnu lld-21 llvm-21
+          DEBIAN_FRONTEND=noninteractive sudo apt-get install -y gcc-aarch64-linux-gnu lld
 
       - name: Implement KSU Next
         working-directory: kernel
@@ -36,10 +34,10 @@ jobs:
         working-directory: kernel
         run: |
           set -euo pipefail
-          export PATH=/usr/lib/llvm-21/bin:$PATH
+          export PATH=/usr/lib/llvm-18/bin:$PATH
           export ARCH=arm64
-          export CC=clang-21
-          export LD=ld.lld-21
+          export CC=clang-18
+          export LD=ld.lld-18
           export CLANG_TRIPLE=aarch64-linux-gnu-
           export CROSS_COMPILE=aarch64-linux-gnu-
           export LLVM=1
