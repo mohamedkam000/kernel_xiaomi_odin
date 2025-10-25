@@ -67,5 +67,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: zip
-          path: |
-            $ZIP_NAME
+          path: ${{ env.ZIP_NAME }}
