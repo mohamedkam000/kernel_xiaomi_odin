@@ -63,8 +63,8 @@ jobs:
           cd ..
           ls -la $ZIP_NAME
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+      - name: Upload the kernel
+        uses: actions/upload-artifact@v4.6.2
         with:
-          name: zip
-          path: ${{ env.ZIP_NAME }}
+          name: odin_kernel
+          path: kernel/anykernel3
