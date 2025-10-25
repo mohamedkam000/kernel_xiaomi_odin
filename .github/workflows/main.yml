@@ -23,7 +23,7 @@ jobs:
 
       - name: Install build dependencies
         run: |
-          sudo apt-get install -y gcc-aarch64-linux-gnu
+          sudo apt-get install -y gcc-aarch64-linux-gnu lld
 
       - name: Implement KSU Next
         working-directory: kernel
@@ -38,7 +38,6 @@ jobs:
           export CC=clang
           export CLANG_TRIPLE=aarch64-linux-gnu-
           export CROSS_COMPILE=aarch64-linux-gnu-
-          export LD=ld
           export LLVM=1
           make $DEFCONFIG
           make -j16
