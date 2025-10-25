@@ -23,7 +23,7 @@ jobs:
 
       - name: Install build dependencies and LLVM 19
         run: |
-          sudo apt-get install -y --no-install-recommends llvm-19 lld-19
+          sudo apt-get install -y --no-install-recommends llvm-19 lld-19 gcc-aarch64-linux-gnu
           sudo apt-get clean
           sudo rm -rf /var/lib/apt/lists/*
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/share/swift
