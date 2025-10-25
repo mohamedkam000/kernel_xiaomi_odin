@@ -23,8 +23,7 @@ jobs:
 
       - name: Install build dependencies and LLVM 19
         run: |
-          clang --version
-          sudo apt-get install -y --no-install-recommends llvm-19 lld-19 gcc-aarch64-linux-gnu
+          sudo apt-get install -y --no-install-recommends gcc-aarch64-linux-gnu
           sudo apt-get clean
           sudo rm -rf /var/lib/apt/lists/*
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/share/swift
@@ -38,12 +37,11 @@ jobs:
         working-directory: kernel
         run: |
           set -euo pipefail
-          export PATH=/usr/lib/llvm-19/bin:$PATH
           export ARCH=arm64
-          export CC=clang-19
+          export CC=clang
           export CLANG_TRIPLE=aarch64-linux-gnu-
           export CROSS_COMPILE=aarch64-linux-gnu-
-          export LD=ld.lld-19
+          export LD=ld.lld
           export LLVM=1
           make $DEFCONFIG
           make -j$(nproc)
