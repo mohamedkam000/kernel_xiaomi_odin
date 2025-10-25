@@ -38,7 +38,7 @@ jobs:
           export CC=clang
           export CLANG_TRIPLE=aarch64-linux-gnu-
           export CROSS_COMPILE=aarch64-linux-gnu-
-          export LD=ld.lld
+          export LD=ld
           export LLVM=1
           make $DEFCONFIG
           make -j16
